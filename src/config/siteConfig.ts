@@ -3,17 +3,17 @@ import { fontConfig } from "./fontConfig";
 
 // 定义站点语言
 // 语言代码，例如：'zh_CN', 'zh_TW', 'en', 'ja', 'ru'。
-const SITE_LANG = "zh_CN";
+const SITE_LANG = "zh_TW";
 
 export const siteConfig: SiteConfig = {
 	// 站点标题
-	title: "Firefly",
+	title: "胖虎的新家",
 
 	// 站点副标题
-	subtitle: "Demo site",
+	subtitle: "🚧網站建置中",
 
 	// 站点 URL
-	site_url: "https://firefly.cuteleaf.cn",
+	site_url: "https://blog.smilehsu.cc",
 
 	// 站点描述
 	description:
