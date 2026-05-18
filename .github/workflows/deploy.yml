@@ -1,0 +1,47 @@
+name: Deploy to VPS
+
+on:
+    # 每次推送到 `main` 分支時觸發這個"工作流程"
+    push:
+        branches: [main]
+    # 允許你在 GitHub 上的 Actions 標籤中手動觸發此"工作流程"
+    workflow_dispatch:
+
+env:
+    FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # 確保使用最新的 Node 執行環境
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout your repository using git
+              uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 9.14.4
+                  run_install: false
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "24" # 配合環境升級至 Node 24
+                  cache: "pnpm" # 💡 順便啟用快取，讓下次部署速度變快！
+
+            - name: Install dependencies
+              run: pnpm install --no-frozen-lockfile
+
+            - name: Build site
+              run: pnpm run build # 這會產出 dist 資料夾
+
+            # 💡 核心修改：移除原本推送到 GitHub 分支的步驟，改為透過 rsync 部署至 VPS
+            - name: Deploy to VPS via rsync
+              uses: easingthemes/ssh-deploy@main
+              env:
+                  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+                  ARGS: "-avz --delete"
+                  SOURCE: "dist/" # 要上傳的本地資料夾（Astro 預設構建輸出目錄）
+                  REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+                  REMOTE_USER: ${{ secrets.REMOTE_USER }}
+                  TARGET: "/var/www/html/blog" # 遠端 VPS 的目標路徑
